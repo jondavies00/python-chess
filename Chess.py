@@ -148,7 +148,7 @@ class Pawn():
         self.colour = colour
         self.symbol = "p"
 
-        self.moveset = [(1,0),(2,0)]
+        self.moveset = [(1,0),(2,0)] #t
 
 
     def __repr__(self):
