@@ -24,16 +24,16 @@ class Board():
             [Rook('grey'), Knight('grey'), Bishop('grey'), Queen('grey'),King('grey'), Bishop('grey'), Knight('grey'), Rook('grey')]
         ])
     
-    def move(self, piece_symbol, colour, old_loc,new_loc):
+    def move(self, piece_symbol, old_loc,new_loc, player):
         #TODO: check move is in moveset
         new_rank, new_file = new_loc[0], new_loc[1]
         old_rank, old_file = old_loc[0], old_loc[1]
         # To traverse the board, we go ranks first, then files. The first board coordinate is 0,0 
         # want a positive rank, so use old - new (i.e. old pawn rank could be 6 (2) and new would be 4 (4), giving a move of +2)
         piece_to_move = self.get_piece(old_loc)
-        if self.found_piece(piece_symbol, colour, piece_to_move):
+        if self.found_piece(piece_symbol, player.colour, piece_to_move):
             
-            if self.legal_move(piece_to_move, old_loc, new_loc, colour):
+            if self.legal_move(piece_to_move, old_loc, new_loc, player):
                 self.board[old_rank][old_file] = None
                 self.board[new_rank][new_file] = piece_to_move
                 return True
@@ -42,29 +42,39 @@ class Board():
         else:
             return False
 
-    def legal_move(self, piece=object, old_loc=tuple, new_loc=tuple, colour=str):
+    def legal_move(self, piece=object, old_loc=tuple, new_loc=tuple, player=object):
         new_rank, new_file  = new_loc[0], new_loc[1]
         old_rank, old_file = old_loc[0], old_loc[1]
         move = (old_rank - new_rank, new_file - old_file)
-        if move in piece.moveset:
+        if move in piece.moveset or move in piece.capture_set:
             #great, now make sure no piece is blocking the move.
             # 1. Can piece reach target square?
-            # could loop through each square we need to move through, and check if a piece is in that square.
+
             if move[0] == 0: # horizontal move
-                for x in range(1, move[1]+1):
-                    if x > 7:
-                        return False 
-                    if self.board[old_rank][old_file + x] != None:
+                if move[1] > 0:
+                    step_file = 1
+                else:
+                    step_file = -1
+                check_file = old_file + step_file
+                while check_file != new_file:
+                    
+                    if self.board[old_rank][check_file] != None:
                         return False
-            elif move[1] == 0: #vertical move
-                for y in range(1, move[0]+1):
-                    if y > 8:
-                        return False
-                    if self.board[old_rank - y][old_file] != None:
-                        return False
-                        
+                    check_file += step_file
+            
+            if move[1] == 0: # vertical move
+                if move[0] > 0:
+                    step_rank = -1
+                else:
+                    step_rank = 1
+                check_rank = old_rank + step_rank #start checking next rank (current square is occupied by itself)
+                while check_rank != new_rank:
+
+                    if self.board[check_rank][old_file] != None:
+                        return False      
+                    check_rank += step_rank
             elif abs(move[0]) == abs(move[1]): # diagonal move
-                # checking this is hard. we need to do four possible checks.
+
                 if move[1] > 0: #IF MOVE IS POSITIVE IN THE FILE DIRECTION
                     step_file = 1
                 else:
@@ -72,28 +82,26 @@ class Board():
                 if move[0] > 0: #IF MOVE IS POSITIVE IN THE RANK DIRECTION
                     step_rank = -1
                 else:
-                    step_rank = 1
+                    step_rank = 1 
                 check_pos = old_loc
+                check_pos = check_pos[0] + step_rank, check_pos[1] + step_file
                 new_pos = new_loc
                 while check_pos != new_pos:
-                    check_pos = check_pos[0] + step_rank, check_pos[1] + step_file
+                    
                     if self.board[check_pos[0]][check_pos[1]] != None:
                         return False
-                    
-                # for xy in range(1, ): #the move doesnt matter, just need to know how much to increment xy by
-                #     if xy > 8:
-                #         return False
-                #     if self.board[old_x- xy][old_y + xy] != None:
-                #         return False
+                    check_pos = check_pos[0] + step_rank, check_pos[1] + step_file
 
 
             # 2. Is same colour piece blocking the target square? If so, can't move, if enemy (and the move is in the capture moveset), capture.
             if self.board[new_rank][new_file] != None: #something in target square
                 target_piece = self.board[new_rank][new_file]
-                if target_piece.colour != colour: #capture
-                    print("Captured", target_piece.colour, target_piece)
+                if target_piece.colour != player.colour and move in piece.capture_set: #capture
+                    print(player.colour, "captured", target_piece.colour, target_piece, ".")
+                    player.update_points(target_piece.value)
+                    print(player.colour, "now has", player.points, "points.")
                     return True
-                elif target_piece.colour == colour:
+                elif target_piece.colour == player.colour:
                     print("Can't move to square: same colour blocking")
                     return False
             else:
@@ -135,7 +143,7 @@ class Board():
                 else:
                     board_string += piece_symbol
                 board_string += ' | '
-                file_count += 1
+
                 # board_string += self.board[f][r]
             board_string += '\n'
         return board_string
@@ -147,8 +155,10 @@ class Pawn():
     def __init__(self, colour):
         self.colour = colour
         self.symbol = "p"
+        self.value = 1
 
         self.moveset = [(1,0),(2,0)] 
+        self.capture_set = [(1,1),(1,-1)]
 
 
     def __repr__(self):
@@ -160,8 +170,12 @@ class Rook():
         self.colour = colour
         self.symbol = "R"
         self.moveset = [(1,0),(2,0),(3,0),(4,0),(5,0),(6,0),(7,0),
-                        (0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(0,7)
+                        (0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(0,7),
+                        (0,-1),(0,-2),(0,-3),(0,-4),(0,-5),(0,-6),(0,-7),
+                        (-1,0),(-2,0),(-3,0),(-4,0),(-5,0),(-6,0),(-7,0)
                         ]
+        self.capture_set = self.moveset
+        self.value = 3
 
     def __repr__(self):
         return colored(self.symbol, self.colour)
@@ -170,7 +184,9 @@ class Knight():
     def __init__(self, colour):
         self.colour = colour
         self.symbol = "N"
-        self.moveset = [(1,2),(-1,2),(2,1),(2,-1),(1,-2),(-1,-2),((-2,-1),(-2,1))]
+        self.moveset = [(1,2),(-1,2),(2,1),(2,-1),(1,-2),(-1,-2),(-2,-1),(-2,1)]
+        self.capture_set = self.moveset
+        self.value = 3
 
     def __repr__(self):
         return colored(self.symbol, self.colour)
@@ -180,8 +196,11 @@ class Bishop():
         self.colour = colour
         self.symbol = "B"
         self.moveset = [
-            (0, 0), (1, -1), (2, -2), (3, -3), (4, -4), (5, -5), (6, -6), (7, -7), (-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5), (-6, 6), (-7, 7),
-            (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (-1, -1), (-2, -2), (-3, -3), (-4, -4), (-5, -5), (-6, -6), (-7, -7)]
+                        (0, 0), (1, -1), (2, -2), (3, -3), (4, -4), (5, -5), (6, -6), (7, -7), (-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5), (-6, 6), (-7, 7),
+                        (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (-1, -1), (-2, -2), (-3, -3), (-4, -4), (-5, -5), (-6, -6), (-7, -7)
+                        ]
+        self.capture_set = self.moveset
+        self.value = 3
 
     def __repr__(self):
         return colored(self.symbol, self.colour)
@@ -191,15 +210,35 @@ class King():
         self.colour = colour
         self.symbol = "K"
         self.moveset = [(0,1), (1,1), (1,0), (-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
+        self.capture_set = self.moveset
+        self.value = 1000
     def __repr__(self):
         return colored(self.symbol, self.colour)
+    
 
 class Queen():
     def __init__(self, colour):
         self.colour = colour
         self.symbol = "Q"
+        self.moveset = [(0, 0), (1, -1), (2, -2), (3, -3), (4, -4), (5, -5), (6, -6), (7, -7), (-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5), (-6, 6), (-7, 7),
+                        (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (-1, -1), (-2, -2), (-3, -3), (-4, -4), (-5, -5), (-6, -6), (-7, -7), 
+                        (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0,-1), (0,-2), 
+                        (0,-3), (0,-4), (0,-5), (0,-6), (0,-7), (-1,0), (-2,0), (-3,0), (-4,0), (-5,0), (-6,0), (-7,0)
+                        ]
+        self.capture_set = self.moveset
+        self.value = 10
     def __repr__(self):
         return colored(self.symbol, self.colour)
+
+class Player():
+
+    def __init__(self, name, colour):
+        self.name = name
+        self.colour = colour
+        self.points = 0
+
+    def update_points(self, piece_value):
+        self.points += piece_value
 
 class Game():
 
@@ -218,15 +257,18 @@ class Game():
 
 
     def start(self):
+        player1 = Player('p1', 'white')
+        player2 = Player('p2', 'grey')
+
         game_board = Board()
         game_ended = False
-        to_play = 'white'
+        to_play = player1
         while not game_ended:
             game_board.flip()
             print(game_board)
-            if to_play == 'white':
+            if to_play.colour == 'white':
                 print('White to move... ')
-            elif to_play == 'grey':
+            elif to_play.colour == 'grey':
                 print('Black to move... ')
 
             valid = False
@@ -238,25 +280,30 @@ class Game():
                     valid = False
                     print("Invalid input, try again")
                 else:
-                    piece, old_loc, new_loc = self.decode_move(move_input, to_play) #e.g. a2 a3 to move pawn to a3
+                    piece, old_loc, new_loc = self.decode_move(move_input, to_play.colour) #e.g. a2 a3 to move pawn to a3
                     
 
-                    if game_board.move(piece, to_play, old_loc, new_loc):
+                    if game_board.move(piece, old_loc, new_loc, to_play):
                         valid = True
                         print(piece, old_loc, new_loc)
                     else:
                         valid = False
                         print("Invalid move, try again.")
                     
-                    
+            if to_play.points >= 1000: #king captured
+                print(to_play.colour, "wins!")
+                break
 
-            if to_play == 'white':
-                to_play = 'grey'
-            elif to_play == 'grey':
-                to_play = 'white'
+            if to_play.colour == 'white':
+                to_play = player2
+            elif to_play.colour == 'grey':
+                to_play = player1
         
     def valid_input(self, move_input):
-        a, b, c = move_input.split(' ')
+        try:
+            a, b, c = move_input.split(' ')
+        except:
+            return False
         if len(a) != 1:
             return False
         elif len(b) != 2:
