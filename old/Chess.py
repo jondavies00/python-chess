@@ -47,6 +47,12 @@ class Board():
         old_rank, old_file = old_loc[0], old_loc[1]
         move = (old_rank - new_rank, new_file - old_file)
         if move in piece.moveset or move in piece.capture_set:
+            #TODO: Is move check? Is the move illegal (i.e. reveals king)
+            # perform simulated move, 
+            if reveal_king(move, player.colour):
+                return False
+            
+
             #great, now make sure no piece is blocking the move.
             # 1. Can piece reach target square?
 
@@ -108,6 +114,7 @@ class Board():
                 return True
         else:
             return False
+
     
     def get_piece(self, location):
         return self.board[location[0]][location[1]]
@@ -215,7 +222,6 @@ class King():
     def __repr__(self):
         return colored(self.symbol, self.colour)
     
-
 class Queen():
     def __init__(self, colour):
         self.colour = colour

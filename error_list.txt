@@ -1,0 +1,9 @@
+1. When we check a move will get the player out of check, we update the opponents possible move squares twice. Instead, we could save the dictionary,
+    update the squares, check if the player is in check, then set the opponents move squares back to the saved state. Any piece changes would still need
+    to be rolled back.
+
+
+SOLVED:
+
+2. Pawns can capture forward and backwards. This needs to be fixed. Not sure how.
+    Checking a valid move, if it a capture, 
