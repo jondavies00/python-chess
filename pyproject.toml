@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "chess_game"  # Required
+version = "1.0.0"  # Required
+description = "Python Chess CLI" 
+readme = "README.md" # Optional
+authors = ["Jonathan"]
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+termcolor = "*"
+colorama = "*"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
