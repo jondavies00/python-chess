@@ -3,127 +3,407 @@
 
 
 from dataclasses import dataclass
+from enum import Enum
+from typing import Optional
 
 
-# @dataclass(frozen=True)
-# class BasePiece:
-#     colour: str
-#     coordinates: tuple[int, int]
-#     symbol: str
-#     move_set: list[tuple]
-#     capture_set: list[tuple]
-#     value: int
-
-#     def __repr__(self):
-#         return self.symbol + '(' + str(self.coordinates) + ')'
-    
-#     def __str__(self):
-#         return self.symbol
-
-# def create_white_pawn(coordinates: tuple[int, int]):
-#     return BasePiece(colour='white', coordinates=coordinates, symbol='p', value=1, move_set=[(0,1),(0,2)], capture_set = [(1,1),(1,-1),(-1,1),(-1,-1)])
-# def create_black_pawn(coordinates: tuple[int, int]):
-#     return BasePiece(colour='black', coordinates=coordinates, symbol='p', value=1, move_set=[(0,1),(0,2)], capture_set = [(1,1),(1,-1),(-1,1),(-1,-1)])
+class Colour(str, Enum):
+    BLACK = "black"
+    WHITE = "white"
 
 
+@dataclass
+class BasePiece:
+    colour: str
+    coordinates: tuple[int, int]
+    symbol: str
+    move_set: list[tuple]
+    capture_set: list[tuple]
+    value: int
 
-class Pawn:
-    def __init__(self, colour, coordinates):
-        self.colour = colour
-        self.coordinates = coordinates
-        self.symbol = "p"
-        self.value = 1
+    possible_moves: Optional[list[tuple]] = None
 
-        self.moveset = [(0,1),(0,2)] 
-        self.capture_set = [(1,1),(1,-1),(-1,1),(-1,-1)]
-
+    def __repr__(self):
+        return self.symbol + "(" + str(self.coordinates) + ")"
 
     def __str__(self):
         return self.symbol
 
-    def __repr__(self):
-        return self.symbol + '(' + str(self.coordinates) + ')'
 
-class Rook:
-    def __init__(self, colour, coordinates):
-        self.colour = colour
-        self.coordinates = coordinates
-        self.symbol = "R"
-        self.moveset = [(1,0),(2,0),(3,0),(4,0),(5,0),(6,0),(7,0),
-                        (0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(0,7),
-                        (0,-1),(0,-2),(0,-3),(0,-4),(0,-5),(0,-6),(0,-7),
-                        (-1,0),(-2,0),(-3,0),(-4,0),(-5,0),(-6,0),(-7,0)
-                        ]
-        self.capture_set = self.moveset
-        self.value = 3
+def create_pawn(colour: str, coordinates: tuple[int, int]):
+    return BasePiece(
+        colour=colour,
+        coordinates=coordinates,
+        symbol="p",
+        value=1,
+        move_set=[(0, 1), (0, 2)],
+        capture_set=[(1, 1), (1, -1), (-1, 1), (-1, -1)],
+    )
 
-    def __str__(self):
-        return self.symbol
-    
-    def __repr__(self):
-        return self.symbol + '(' + str(self.coordinates) + ')'
 
-class Knight:
-    def __init__(self, colour, coordinates):
-        self.colour = colour
-        self.coordinates = coordinates
-        self.symbol = "N"
-        self.moveset = [(1,2),(-1,2),(2,1),(2,-1),(1,-2),(-1,-2),(-2,-1),(-2,1)]
-        self.capture_set = self.moveset
-        self.value = 3
+def create_rook(colour: str, coordinates: tuple[int, int]):
+    return BasePiece(
+        colour=colour,
+        coordinates=coordinates,
+        symbol="R",
+        value=3,
+        move_set=[
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (4, 0),
+            (5, 0),
+            (6, 0),
+            (7, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (0, 7),
+            (0, -1),
+            (0, -2),
+            (0, -3),
+            (0, -4),
+            (0, -5),
+            (0, -6),
+            (0, -7),
+            (-1, 0),
+            (-2, 0),
+            (-3, 0),
+            (-4, 0),
+            (-5, 0),
+            (-6, 0),
+            (-7, 0),
+        ],
+        capture_set=[
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (4, 0),
+            (5, 0),
+            (6, 0),
+            (7, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (0, 7),
+            (0, -1),
+            (0, -2),
+            (0, -3),
+            (0, -4),
+            (0, -5),
+            (0, -6),
+            (0, -7),
+            (-1, 0),
+            (-2, 0),
+            (-3, 0),
+            (-4, 0),
+            (-5, 0),
+            (-6, 0),
+            (-7, 0),
+        ],
+    )
 
-    def __str__(self):
-        return self.symbol
 
-    def __repr__(self):
-        return self.symbol + '(' + str(self.coordinates) + ')'
+def create_bishop(colour: str, coordinates: tuple[int, int]):
+    return BasePiece(
+        colour=colour,
+        coordinates=coordinates,
+        symbol="B",
+        value=3,
+        move_set=[
+            (1, -1),
+            (2, -2),
+            (3, -3),
+            (4, -4),
+            (5, -5),
+            (6, -6),
+            (7, -7),
+            (-1, 1),
+            (-2, 2),
+            (-3, 3),
+            (-4, 4),
+            (-5, 5),
+            (-6, 6),
+            (-7, 7),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+            (6, 6),
+            (7, 7),
+            (-1, -1),
+            (-2, -2),
+            (-3, -3),
+            (-4, -4),
+            (-5, -5),
+            (-6, -6),
+            (-7, -7),
+        ],
+        capture_set=[
+            (1, -1),
+            (2, -2),
+            (3, -3),
+            (4, -4),
+            (5, -5),
+            (6, -6),
+            (7, -7),
+            (-1, 1),
+            (-2, 2),
+            (-3, 3),
+            (-4, 4),
+            (-5, 5),
+            (-6, 6),
+            (-7, 7),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+            (6, 6),
+            (7, 7),
+            (-1, -1),
+            (-2, -2),
+            (-3, -3),
+            (-4, -4),
+            (-5, -5),
+            (-6, -6),
+            (-7, -7),
+        ],
+    )
 
-class Bishop:
-    def __init__(self, colour, coordinates):
-        self.colour = colour
-        self.coordinates = coordinates
-        self.symbol = "B"
-        self.moveset = [
-                        (1, -1), (2, -2), (3, -3), (4, -4), (5, -5), (6, -6), (7, -7), (-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5), (-6, 6), (-7, 7),
-                        (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (-1, -1), (-2, -2), (-3, -3), (-4, -4), (-5, -5), (-6, -6), (-7, -7)
-                        ]
-        self.capture_set = self.moveset
-        self.value = 3
 
-    def __str__(self):
-        return self.symbol
+def create_knight(colour: str, coordinates: tuple[int, int]):
+    return BasePiece(
+        colour=colour,
+        coordinates=coordinates,
+        symbol="N",
+        value=3,
+        move_set=[
+            (1, 2),
+            (-1, 2),
+            (2, 1),
+            (2, -1),
+            (1, -2),
+            (-1, -2),
+            (-2, -1),
+            (-2, 1),
+        ],
+        capture_set=[
+            (1, 2),
+            (-1, 2),
+            (2, 1),
+            (2, -1),
+            (1, -2),
+            (-1, -2),
+            (-2, -1),
+            (-2, 1),
+        ],
+    )
 
-    def __repr__(self):
-        return self.symbol + '(' + str(self.coordinates) + ')'
 
-class King:
-    def __init__(self, colour, coordinates):
-        self.colour = colour
-        self.coordinates = coordinates
-        self.symbol = "K"
-        self.moveset = [(0,1), (1,1), (1,0), (-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
-        self.capture_set = self.moveset
-        self.value = 1000
-    def __str__(self):
-        return self.symbol
+def create_queen(colour: str, coordinates: tuple[int, int]):
+    return BasePiece(
+        colour=colour,
+        coordinates=coordinates,
+        symbol="Q",
+        value=10,
+        move_set=[
+            (1, -1),
+            (2, -2),
+            (3, -3),
+            (4, -4),
+            (5, -5),
+            (6, -6),
+            (7, -7),
+            (-1, 1),
+            (-2, 2),
+            (-3, 3),
+            (-4, 4),
+            (-5, 5),
+            (-6, 6),
+            (-7, 7),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+            (6, 6),
+            (7, 7),
+            (-1, -1),
+            (-2, -2),
+            (-3, -3),
+            (-4, -4),
+            (-5, -5),
+            (-6, -6),
+            (-7, -7),
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (4, 0),
+            (5, 0),
+            (6, 0),
+            (7, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (0, 7),
+            (0, -1),
+            (0, -2),
+            (0, -3),
+            (0, -4),
+            (0, -5),
+            (0, -6),
+            (0, -7),
+            (-1, 0),
+            (-2, 0),
+            (-3, 0),
+            (-4, 0),
+            (-5, 0),
+            (-6, 0),
+            (-7, 0),
+        ],
+        capture_set=[
+            (1, -1),
+            (2, -2),
+            (3, -3),
+            (4, -4),
+            (5, -5),
+            (6, -6),
+            (7, -7),
+            (-1, 1),
+            (-2, 2),
+            (-3, 3),
+            (-4, 4),
+            (-5, 5),
+            (-6, 6),
+            (-7, 7),
+            (1, 1),
+            (2, 2),
+            (3, 3),
+            (4, 4),
+            (5, 5),
+            (6, 6),
+            (7, 7),
+            (-1, -1),
+            (-2, -2),
+            (-3, -3),
+            (-4, -4),
+            (-5, -5),
+            (-6, -6),
+            (-7, -7),
+            (1, 0),
+            (2, 0),
+            (3, 0),
+            (4, 0),
+            (5, 0),
+            (6, 0),
+            (7, 0),
+            (0, 1),
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (0, 7),
+            (0, -1),
+            (0, -2),
+            (0, -3),
+            (0, -4),
+            (0, -5),
+            (0, -6),
+            (0, -7),
+            (-1, 0),
+            (-2, 0),
+            (-3, 0),
+            (-4, 0),
+            (-5, 0),
+            (-6, 0),
+            (-7, 0),
+        ],
+    )
 
-    def __repr__(self):
-        return self.symbol + '(' + str(self.coordinates) + ')'
-    
-class Queen:
-    def __init__(self, colour, coordinates):
-        self.colour = colour
-        self.coordinates = coordinates
-        self.symbol = "Q"
-        self.moveset = [(1, -1), (2, -2), (3, -3), (4, -4), (5, -5), (6, -6), (7, -7), (-1, 1), (-2, 2), (-3, 3), (-4, 4), (-5, 5), (-6, 6), (-7, 7),
-                        (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (-1, -1), (-2, -2), (-3, -3), (-4, -4), (-5, -5), (-6, -6), (-7, -7), 
-                        (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0,-1), (0,-2), 
-                        (0,-3), (0,-4), (0,-5), (0,-6), (0,-7), (-1,0), (-2,0), (-3,0), (-4,0), (-5,0), (-6,0), (-7,0)
-                        ]
-        self.capture_set = self.moveset
-        self.value = 10
-    def __str__(self):
-        return self.symbol
-    
-    def __repr__(self):
-        return self.symbol + '(' + str(self.coordinates) + ')'
+
+def create_king(colour: str, coordinates: tuple[int, int]):
+    return BasePiece(
+        colour=colour,
+        coordinates=coordinates,
+        symbol="K",
+        value=1 * 10 ^ 6,
+        move_set=[(0, 1), (1, 1), (1, 0), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)],
+        capture_set=[
+            (0, 1),
+            (1, 1),
+            (1, 0),
+            (-1, 1),
+            (-1, 0),
+            (-1, -1),
+            (0, -1),
+            (1, -1),
+        ],
+    )
+
+
+def create_white_pawn(coordinates: tuple[int, int]):
+    return create_pawn(colour=Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_pawn(coordinates: tuple[int, int]):
+    return create_pawn(colour=Colour.BLACK, coordinates=coordinates)
+
+
+def create_white_bishop(coordinates: tuple[int, int]):
+    return create_bishop(Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_bishop(coordinates: tuple[int, int]):
+    return create_bishop(Colour.BLACK, coordinates=coordinates)
+
+
+def create_white_bishop(coordinates: tuple[int, int]):
+    return create_bishop(Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_bishop(coordinates: tuple[int, int]):
+    return create_bishop(Colour.BLACK, coordinates=coordinates)
+
+
+def create_white_knight(coordinates: tuple[int, int]):
+    return create_knight(Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_knight(coordinates: tuple[int, int]):
+    return create_knight(Colour.BLACK, coordinates=coordinates)
+
+
+def create_white_rook(coordinates: tuple[int, int]):
+    return create_rook(Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_rook(coordinates: tuple[int, int]):
+    return create_rook(Colour.BLACK, coordinates=coordinates)
+
+
+def create_white_queen(coordinates: tuple[int, int]):
+    return create_queen(Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_queen(coordinates: tuple[int, int]):
+    return create_queen(Colour.BLACK, coordinates=coordinates)
+
+
+def create_white_king(coordinates: tuple[int, int]):
+    return create_king(Colour.WHITE, coordinates=coordinates)
+
+
+def create_black_king(coordinates: tuple[int, int]):
+    return create_king(Colour.BLACK, coordinates=coordinates)
