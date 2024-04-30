@@ -1,4 +1,4 @@
-# ChessGame
+# Python Chess
 
 This is a console-based chess implementation in python. Play against a randomised AI (that prioritises captures).
 
